@@ -1,0 +1,12 @@
+{
+  "targetUrl": "",
+  "maxDepth": 3,
+  "requestDelayMs": { "min": 1000, "max": 2000 },
+  "userAgent": "OfflineMirrorBot/1.0 (+offline archival mirror; respects robots.txt)",
+  "outputDir": "output",
+  "verifyPages": [],
+  "screenshotDiffThreshold": 0.1,
+  "navigationTimeoutMs": 30000,
+  "networkIdleTimeoutMs": 15000,
+  "maxScrollAttempts": 30
+}
