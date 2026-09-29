@@ -37,8 +37,6 @@ interface FlagHelp {
   readonly description: string;
 }
 
-// The single source of truth for every flag's description — both `--help` and CONTRIBUTING.md's
-// flag reference are generated from this, so the two can never drift out of sync with each other.
 const FLAG_HELP: readonly FlagHelp[] = [
   { flag: '--url', valueHint: '<url>', description: 'Seed URL to mirror' },
   { flag: '--depth', valueHint: '<n>', description: 'Max crawl depth' },
@@ -76,6 +74,19 @@ function printHelp(): void {
   }
 }
 
+function parseNumericFlag(
+  flagName: string,
+  rawValue: string | undefined,
+  fallback: number,
+): number {
+  if (rawValue === undefined) return fallback;
+  const parsed = Number(rawValue);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    throw new Error(`${flagName} must be a non-negative number, got "${rawValue}".`);
+  }
+  return parsed;
+}
+
 async function resolveConfig(): Promise<CliFlags | null> {
   const { values } = parseArgs({
     options: {
@@ -105,15 +116,19 @@ async function resolveConfig(): Promise<CliFlags | null> {
     );
   }
 
+  const maxDepth = parseNumericFlag('--depth', values.depth, base.maxDepth);
+  const delayMin = parseNumericFlag('--delay-min', values['delay-min'], base.requestDelayMs.min);
+  const delayMax = parseNumericFlag('--delay-max', values['delay-max'], base.requestDelayMs.max);
+  if (delayMin > delayMax) {
+    throw new Error(`--delay-min (${delayMin}) cannot be greater than --delay-max (${delayMax}).`);
+  }
+
   const config: MirrorConfig = {
     ...base,
     targetUrl,
-    maxDepth: values.depth ? Number(values.depth) : base.maxDepth,
+    maxDepth,
     outputDir: values.out ?? base.outputDir,
-    requestDelayMs: {
-      min: values['delay-min'] ? Number(values['delay-min']) : base.requestDelayMs.min,
-      max: values['delay-max'] ? Number(values['delay-max']) : base.requestDelayMs.max,
-    },
+    requestDelayMs: { min: delayMin, max: delayMax },
     // No page list configured → at least screenshot-diff the seed page itself.
     verifyPages: base.verifyPages.length > 0 ? base.verifyPages : [targetUrl],
   };
