@@ -164,7 +164,9 @@ export async function renderPage(
 
     await page
       .waitForLoadState('networkidle', { timeout: config.networkIdleTimeoutMs })
-      .catch(() => undefined);
+      .catch(() =>
+        logger.warn(`Network still not idle on ${pageUrl} after scrolling; continuing anyway`),
+      );
     await Promise.all(pendingResponseHandlers);
 
     const html = await page.content();
