@@ -54,9 +54,12 @@ function safeDecodeURIComponent(value: string): string {
   }
 }
 
+// Decoding can turn one path segment into several (e.g. a URL path segment of `..%2F..%2Fetc`
+// decodes to `../../etc`) — stripping `/` (and `\`) here, after decoding, is what stops that
+// decoded content from ever being reinterpreted as extra path separators by the caller's `posix.join`.
 function sanitizeSegment(segment: string): string {
   const decoded = safeDecodeURIComponent(segment);
-  const cleaned = decoded.replace(/[\0<>:"|?*\\]/g, '_');
+  const cleaned = decoded.replace(/[\0<>:"|?*\\/]/g, '_');
   return cleaned === '.' || cleaned === '..' || cleaned === '' ? '_' : cleaned;
 }
 
