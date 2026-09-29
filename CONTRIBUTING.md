@@ -4,17 +4,17 @@ We'd be glad to have you contribute to the development of this repository!
 
 ## Setup Workflow
 
-```bash
-npm install         # also fetches Playwright's Chromium; falls back to system Chrome if blocked
-npm run mirror       # crawl → render → download → rewrite → validate; --help lists all flags
-npm run typecheck    # tsc --noEmit
-npm run lint          # eslint .
-npm run format         # prettier --write .
-```
+| Command             | Description                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------------- |
+| `npm install`       | Install dependencies (also fetches Playwright's Chromium; falls back to system Chrome if blocked) |
+| `npm run mirror`    | Run the pipeline: crawl → render → download → rewrite → validate; `--help` lists all flags        |
+| `npm run typecheck` | Type-check the project (`tsc --noEmit`)                                                           |
+| `npm run lint`      | Lint the project (`eslint .`)                                                                     |
+| `npm run format`    | Format the project (`prettier --write .`)                                                         |
 
 ## Schema Workflow
 
-- `cli.ts` orchestrates the pipeline: crawl → render → download → rewrite → validate.
+- The CLI entry point orchestrates the pipeline: crawl → render → download → rewrite → validate.
 - `crawler/` discovers pages and enforces `robots.txt`.
 - `renderer/` runs pages through Playwright to capture the JS-rendered DOM and network activity.
 - `downloader/` fetches every asset a rendered page references.
